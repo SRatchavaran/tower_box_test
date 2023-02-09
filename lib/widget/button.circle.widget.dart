@@ -1,0 +1,27 @@
+import 'package:flutter/cupertino.dart';
+
+class ButtonCircleWidget extends StatelessWidget {
+  final Function()? onPressed;
+  final Color color;
+  const ButtonCircleWidget(
+      {super.key, required this.color, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onLongPress: onPressed,
+      child: Container(
+        height: 64,
+        width: 64,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: const Color(0xFF707070),
+            width: 1,
+          ),
+        ),
+      ),
+    );
+  }
+}
