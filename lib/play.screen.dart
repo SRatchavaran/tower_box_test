@@ -17,14 +17,29 @@ class PlayScreen extends StatefulWidget {
 
 class _PlayScreenState extends State<PlayScreen> {
   List<BoxModel> boxList = [];
-  int number = 0, maxBox = 10, _startTime = 2;
-  Timer? timer;
-  bool isShowTime = false, isLeft = false, isRight = false;
+  int numberDestroy = 0, maxBox = 5, _startTime = 2, _totalTime = 0;
+  Timer? timer, totalTimer;
+  bool isShowTime = false,
+      isLeft = false,
+      isRight = false,
+      isStop = false,
+      isStart = true;
   String txtShow = '';
   Size sizeLastBox = const Size(0, 0), sizeTriangle = const Size(24, 24);
 
   @override
   void initState() {
+    setStart();
+    super.initState();
+  }
+
+  void setStart() {
+    isShowTime = false;
+    isLeft = false;
+    isRight = false;
+    isStop = false;
+    isStart = true;
+    _totalTime = 0;
     int i = 0;
     do {
       i++;
@@ -54,7 +69,6 @@ class _PlayScreenState extends State<PlayScreen> {
         ),
       );
     } while (i < maxBox);
-    super.initState();
   }
 
   @override
@@ -123,7 +137,7 @@ class _PlayScreenState extends State<PlayScreen> {
                                         Padding(
                                           padding: const EdgeInsets.all(4),
                                           child: Stack(
-                                            children: number == index
+                                            children: numberDestroy == index
                                                 ? [
                                                     CustomPaint(
                                                       size: sizeTriangle,
@@ -165,7 +179,7 @@ class _PlayScreenState extends State<PlayScreen> {
                                         Padding(
                                           padding: const EdgeInsets.all(4),
                                           child: Stack(
-                                            children: number == index
+                                            children: numberDestroy == index
                                                 ? [
                                                     CustomPaint(
                                                       size: sizeTriangle,
@@ -234,6 +248,31 @@ class _PlayScreenState extends State<PlayScreen> {
                               fontWeight: FontWeight.w900,
                             ),
                             textAlign: TextAlign.center,
+                          ),
+                        )
+                      : Container(),
+                ),
+                Positioned.fill(
+                  child: isStop
+                      ? Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                setStart();
+                              });
+                            },
+                            child: const SizedBox(
+                              width: double.infinity,
+                              child: Text(
+                                'เริ่มใหม่',
+                                style: TextStyle(
+                                  fontSize: 36,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           ),
                         )
                       : Container(),
@@ -313,6 +352,10 @@ class _PlayScreenState extends State<PlayScreen> {
   }
 
   void timerFnc() {
+    if (isStart == true) {
+      startTotalTimer();
+      isStart = false;
+    }
     _startTime = 2;
     const oneSec = Duration(seconds: 1);
     timer = Timer.periodic(
@@ -322,6 +365,7 @@ class _PlayScreenState extends State<PlayScreen> {
           boxList.removeAt(0);
           if (boxList.isEmpty) {
             txtShow = 'กล่องหมดแล้ว';
+            isStop = true;
           } else {
             isShowTime = false;
           }
@@ -341,8 +385,25 @@ class _PlayScreenState extends State<PlayScreen> {
     setState(() {
       if (boxList.isNotEmpty) {
         isShowTime = false;
-        timer!.cancel();
+        timer?.cancel();
       }
     });
+  }
+
+  void startTotalTimer() {
+    const oneSec = Duration(seconds: 1);
+    totalTimer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (isStop == true) {
+          setState(() {
+            txtShow += '\nใช้เวลาทั้งหมด\n $_totalTime วินาที';
+          });
+          timer.cancel();
+        } else {
+          _totalTime++;
+        }
+      },
+    );
   }
 }
